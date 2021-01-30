@@ -30,7 +30,7 @@ def reduce_dimension_ndc(df, ndc_df):
             # remove the list
             val_rit = vet_rit[0]
         else:
-            val_rit = '?'
+            val_rit = 'NA'
             
         return val_rit
     
@@ -126,17 +126,30 @@ def create_tf_categorical_feature_cols(categorical_col_list,
         tf_categorical_feature_column = tf.feature_column.......
 
         '''
+        # count # of items in file
+        num_items = sum(1 for line in open(vocab_file_path))
+        
+        print(c, num_items)
+        
+        tf_categorical_feature_column = tf.feature_column.indicator_column(
+            tf.feature_column.categorical_column_with_vocabulary_file(key=c, vocabulary_file=vocab_file_path, 
+                                                                      vocabulary_size=num_items,
+                                                                      num_oov_buckets=1))
+        
         output_tf_list.append(tf_categorical_feature_column)
     return output_tf_list
 
 #Question 8
-def normalize_numeric_with_zscore(col, mean, std):
+def normalize_numeric_with_zscore(mean, std):
     '''
     This function can be used in conjunction with the tf feature column for normalization
     '''
-    return (col - mean)/std
-
-
+    def norm_func(col):
+        col = tf.cast(col, tf.float32)
+        
+        return (col - mean)/std
+    
+    return norm_func
 
 def create_tf_numeric_feature(col, MEAN, STD, default_value=0):
     '''
@@ -148,6 +161,9 @@ def create_tf_numeric_feature(col, MEAN, STD, default_value=0):
     return:
         tf_numeric_feature: tf feature column representation of the input field
     '''
+    tf_numeric_feature = tf.feature_column.numeric_column(col, dtype=tf.dtypes.float32, default_value=default_value, 
+                                                          normalizer_fn=normalize_numeric_with_zscore(MEAN, STD))
+    
     return tf_numeric_feature
 
 #Question 9
