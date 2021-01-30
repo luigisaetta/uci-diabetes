@@ -54,7 +54,8 @@ def select_first_encounter(df):
 
 
 #Question 6
-# should be OK
+# I have decided to use SKlearn GroupKfold.
+# It divides the given dataframe in N splits, ensuring that we have diffrents groups in each split
 def patient_dataset_splitter(df, patient_key='patient_nbr'):
     '''
     df: pandas dataframe, input dataset that will be split
@@ -68,13 +69,19 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
     # first shuffle the data
     df = df.sample(frac = 1)
     
+    n_count = df.shape[0]
+    
+    # we're going to divide the df in order to have 80% in train-validation and 20% in the test set
+    # we will take 4 out of five fold for train-val, the rest for test
+    # for this reason n_split for the first split is 5
     skf = GroupKFold(n_splits=5)
     groups = df[patient_key].unique()
     
     for train_val_idx, test_idx in skf.split(df, groups=groups):
         test = df.iloc[test_idx]
+        # now test is 20% of the total 
         
-        # need another split
+        # need another split to divide in train and validation
         train_val = df.iloc[train_val_idx]
         
         skf2 = GroupKFold(n_splits=4)
@@ -84,13 +91,13 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
             train = train_val.iloc[train_idx]
             validation = train_val.iloc[val_idx]
             
-            # first is OK
+            # first division is OK
             break
         break
     
-    print('Train:', len(train))
-    print('Val:', len(validation))
-    print('Test:', len(test))
+    print('Number of records in Train set :', len(train), 'fraction is:', round(len(train)*100./n_count, 1))
+    print('Number of records in Validation set:', len(validation), 'fraction is:', round(len(validation)*100./n_count, 1))
+    print('Number of records in Test set:', len(test), 'fraction is:', round(len(test)*100./n_count, 1))
     
     return train, validation, test
 
@@ -202,7 +209,8 @@ def count_missing_values(df, chr_used, list_fields):
                        '# of nulls': n_count, "perc": n_perc } )
     
     return count_df
-    
+# to count zeros in numerical fields
+
 def count_zeros(df, list_fields):
     n_count = []
     n_perc = []
