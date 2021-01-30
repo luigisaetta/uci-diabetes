@@ -52,7 +52,13 @@ def select_first_encounter(df):
     first_encounter_df = df.sort_values(by=['patient_nbr', 'encounter_id'], ascending=True).groupby(by=['patient_nbr']).head(HOW_MANY)
     return first_encounter_df
 
+# helper, for question 6
+def compute_fraction(num, den):
+    return round(num*100./den, 1) 
 
+def print_dataset_summary(df, name, n_total):
+    print('Number of records in', name,  len(df), ', fraction is:', compute_fraction(len(df), n_total), '%')
+    
 #Question 6
 # I have decided to use SKlearn GroupKfold.
 # It divides the given dataframe in N splits, ensuring that we have diffrents groups in each split
@@ -69,35 +75,35 @@ def patient_dataset_splitter(df, patient_key='patient_nbr'):
     # first shuffle the data
     df = df.sample(frac = 1)
     
-    n_count = df.shape[0]
+    n_total = df.shape[0]
     
-    # we're going to divide the df in order to have 80% in train-validation and 20% in the test set
-    # we will take 4 out of five fold for train-val, the rest for test
+    # we're going to divide the df to have 80% in train-validation and 20% in the test set
+    # we will take 4 out of 5 fold for train-val, the rest for test
     # for this reason n_split for the first split is 5
-    skf = GroupKFold(n_splits=5)
-    groups = df[patient_key].unique()
+    gkf = GroupKFold(n_splits=5)
     
-    for train_val_idx, test_idx in skf.split(df, groups=groups):
-        test = df.iloc[test_idx]
-        # now test is 20% of the total 
-        
-        # need another split to divide in train and validation
-        train_val = df.iloc[train_val_idx]
-        
-        skf2 = GroupKFold(n_splits=4)
-        groups2 = train_val[patient_key].unique()
-        
-        for train_idx, val_idx in skf2.split(train_val , groups=groups2):
-            train = train_val.iloc[train_idx]
-            validation = train_val.iloc[val_idx]
-            
-            # first division is OK
-            break
-        break
+    # here we define the differents groups id, on which we're splitting to have non overlapping
+    # get indexes
+    train_val_idx, test_idx = next(gkf.split(df, groups=df[patient_key].unique()))
     
-    print('Number of records in Train set :', len(train), 'fraction is:', round(len(train)*100./n_count, 1))
-    print('Number of records in Validation set:', len(validation), 'fraction is:', round(len(validation)*100./n_count, 1))
-    print('Number of records in Test set:', len(test), 'fraction is:', round(len(test)*100./n_count, 1))
+    test = df.iloc[test_idx]
+    
+    # now test is 20% of the total 
+    # need another split to divide in train and validation
+    
+    train_val = df.iloc[train_val_idx]
+    
+    # remaining 80% to split in 4
+    gkf2 = GroupKFold(n_splits=4) 
+        
+    train_idx, val_idx = next(gkf2.split(train_val , groups=train_val[patient_key].unique()))
+    
+    train = train_val.iloc[train_idx]
+    validation = train_val.iloc[val_idx]
+    
+    print_dataset_summary(train, 'Train', n_total)
+    print_dataset_summary(validation, 'Validation', n_total)
+    print_dataset_summary(test, 'Test', n_total)
     
     return train, validation, test
 
