@@ -171,8 +171,9 @@ def get_mean_std_from_preds(diabetes_yhat):
     '''
     diabetes_yhat: TF Probability prediction object
     '''
-    m = '?'
-    s = '?'
+    m = diabetes_yhat.mean()
+    s = diabetes_yhat.stddev()
+    
     return m, s
 
 # Question 10
@@ -183,6 +184,13 @@ def get_student_binary_prediction(df, col):
     return:
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
+    # From requirements: we want patients staying for at least 5 day in hospital
+    THRESHOLD = 4.5
+    
+    student_binary_prediction = (df[col] >= THRESHOLD).values.astype(int)
+    
+    print('get_student_binary_prediction---> Predicted positive:', sum(student_binary_prediction))
+    
     return student_binary_prediction
 
 # other utilities and helper functions
