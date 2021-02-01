@@ -177,7 +177,7 @@ def get_mean_std_from_preds(diabetes_yhat):
     return m, s
 
 # Question 10
-def get_student_binary_prediction(df, col):
+def get_student_binary_prediction(df, col, threshold=5.0):
     '''
     df: pandas dataframe prediction output dataframe
     col: str,  probability mean prediction field
@@ -185,7 +185,7 @@ def get_student_binary_prediction(df, col):
         student_binary_prediction: pandas dataframe converting input to flattened numpy array and binary labels
     '''
     # From requirements: we want patients staying for at least 5 day in hospital
-    THRESHOLD = 4.5
+    THRESHOLD = threshold
     
     student_binary_prediction = (df[col] >= THRESHOLD).values.astype(int)
     
