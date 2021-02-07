@@ -129,7 +129,7 @@ def create_tf_categorical_feature_cols(categorical_col_list,
         # count # of items in file
         num_items = sum(1 for line in open(vocab_file_path))
         
-        print(c, num_items)
+        # print(c, num_items)
         
         tf_categorical_feature_column = tf.feature_column.indicator_column(
             tf.feature_column.categorical_column_with_vocabulary_file(key=c, vocabulary_file=vocab_file_path, 
@@ -259,3 +259,16 @@ def count_zeros(df, list_fields):
                        '# of zeros': n_count, "perc": n_perc } )
     
     return count_df
+
+# compute the ROC AUC using the trapeze formula
+def compute_area(fpr_reversed, tpr_reversed):
+    n_point = len(fpr_reversed)
+    
+    area = 0.
+    
+    for i in range(0, n_point - 1):
+        area_ti = (tpr_reversed[i] + tpr_reversed[i + 1]) * (fpr_reversed[i + 1] - fpr_reversed[i]) * 0.5
+        
+        area += area_ti
+    
+    return round(area, 3)
