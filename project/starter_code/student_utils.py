@@ -3,9 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
+import random as rn
 import tensorflow as tf
 
 from sklearn.model_selection import GroupKFold
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
 
 ####### STUDENTS FILL THIS OUT ######
 #Question 3
@@ -272,3 +274,65 @@ def compute_area(fpr_reversed, tpr_reversed):
         area += area_ti
     
     return round(area, 3)
+
+# compute all the metrics (acc, precision, recall, etc) for various thresholds
+def compute_ml_metrics(prob_output_df, threshold_list):
+    # it will populate these lists, for plotting
+    # returns a dataframe with all metrics
+    # do the computation for different thresholds
+    
+    # it will populate these lists, for plotting
+    acc_list = []
+    prec_list = []
+    rec_list = []
+    f1_list = []
+    conf_mat_list = []
+    tpr_list = []
+    fpr_list = []
+    
+    for thr in threshold_list:
+        print('Compute for THRESHOLD:', thr)
+        student_binary_prediction = get_student_binary_prediction(prob_output_df, 'pred_mean', threshold=thr)
+        # pred_test_df = add_pred_to_test(d_test, student_binary_prediction, ['race', 'gender'])
+        
+        # extracts label and score
+        # labels
+        y_true = (prob_output_df['actual_value'].values >= 5).astype(int)
+        # score
+        y_preds = student_binary_prediction
+        
+        # compute metrics
+        conf_mat = confusion_matrix(y_true, y_preds)
+        tn, fp, fn, tp = conf_mat.ravel()
+        
+        acc = accuracy_score(y_true, y_preds)
+        precision = precision_score(y_true, y_preds, average='weighted')
+        recall = recall_score(y_true, y_preds, average='weighted')
+        f1 = f1_score(y_true, y_preds, average='weighted')
+        tpr = round(tp/float(tp + fn), 2)
+        fpr = round(fp/float(fp + tn), 2)
+        
+        acc_list.append(acc)
+        prec_list.append(precision)
+        rec_list.append(recall)
+        f1_list.append(f1)
+        conf_mat_list.append([tn, fp, fn, tp])
+        tpr_list.append(tpr)
+        fpr_list.append(fpr)
+        
+        # build the results dataframe
+        stats_df = pd.DataFrame(list(zip(threshold_list, conf_mat_list, acc_list, prec_list, rec_list, f1_list, tpr_list, fpr_list)), 
+                                columns =['thr', 'conf_mat [tn, fp, fn, tp]', 'acc', 'prec', 'rec', 'f1', 'tpr', 'fpr'])
+    
+    return stats_df
+
+def enable_reproducibility(seed):
+    SEED = seed
+    os.environ['PYTHONHASHSEED'] = '0'
+    # The below is needed for starting Numpy generated random numbers
+    # in a well-defined initial state.
+    np.random.seed(SEED)
+    # The below is necessary for starting core Python generated random numbers
+    # in a well-defined state.
+    rn.seed(SEED)
+    tf.random.set_seed(SEED)
