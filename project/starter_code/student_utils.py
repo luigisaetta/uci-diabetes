@@ -9,6 +9,7 @@ import tensorflow as tf
 from sklearn.model_selection import GroupKFold
 from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
 
+
 ####### STUDENTS FILL THIS OUT ######
 #Question 3
 # should be OK
@@ -280,7 +281,7 @@ def compute_ml_metrics(prob_output_df, threshold_list):
     # it will populate these lists, for plotting
     # returns a dataframe with all metrics
     # do the computation for different thresholds
-    
+
     # it will populate these lists, for plotting
     acc_list = []
     prec_list = []
@@ -336,3 +337,58 @@ def enable_reproducibility(seed):
     # in a well-defined state.
     rn.seed(SEED)
     tf.random.set_seed(SEED)
+
+    # to plot loss vs epochs during training
+def plot_loss(hist, skip):
+    plt.figure(figsize=(14,6))
+    
+    plt.plot(hist.history['loss'][skip:], label='Training loss')
+    plt.plot(hist.history['val_loss'][skip:], label='Validation loss')
+    plt.title('Loss')
+    plt.legend(loc='upper right')
+    plt.ylabel('loss')
+    plt.xlabel('epoch')
+    plt.grid(True)
+    plt.show();
+
+def plot_zeros(df):
+    plt.title('Perc. of zeros')
+    sns.barplot(y=df['columns'], x=df['perc'])
+
+def plot_missing_values(df):
+    plt.title('Perc. of missing values')
+    sns.barplot(y=df['columns'], x=df['perc'])
+
+def plot_f1_score(thr_list, df):
+    plt.figure(figsize=(8, 6))
+    plt.plot(thr_list, df['f1'].values, '*-')
+    plt.title('F1 score vs threshold')
+    plt.xlabel('threshold')
+    plt.ylabel('F1-score')
+    plt.grid(True)
+    plt.show()
+
+def plot_prec_rec(thr_list, df, xlim=(2.2, 6.0), ylim=(0.1, 0.8)):
+    plt.figure(figsize=(8, 6))
+    plt.plot(thr_list, df['prec'].values, '*-', label='prec.')
+    plt.plot(thr_list, df['rec'].values, '+-', label='rec.')
+    plt.title('prec/rec vs threshold')
+    plt.legend(loc='lower right')
+    plt.xlabel('threshold')
+    plt.ylabel('prec/rec')
+    plt.xlim(xlim)
+    plt.ylim(ylim)
+    plt.grid(True)
+    plt.show()
+
+def plot_roc(df):
+    plt.figure(figsize=(8, 6))
+    plt.plot(df['fpr'].values, df['tpr'].values, '*-')
+    plt.title('ROC curve')
+    plt.xlim((0.1, 0.7))
+    plt.ylim((0.1, 0.9))
+    plt.xlabel('fpr')
+    plt.ylabel('tpr')
+    plt.grid(True)
+    plt.show()
+    
