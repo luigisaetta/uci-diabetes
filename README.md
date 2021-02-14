@@ -13,6 +13,10 @@ The code is based on a modified version of the UCI diabetes dataset (https://arc
 * Explanation on how to best choose the threshold, to select a group of patients for a trial
 * Bias analysis, using AEquitas toolkit
 
+## References
+@article{2018aequitas,
+     title={Aequitas: A Bias and Fairness Audit Toolkit},
+     author={Saleiro, Pedro and Kuester, Benedict and Stevens, Abby and Anisfeld, Ari and Hinkson, Loren and London, Jesse and Ghani, Rayid}, journal={arXiv preprint arXiv:1811.05577}, year={2018}}
 
 
  
