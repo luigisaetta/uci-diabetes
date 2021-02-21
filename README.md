@@ -2,7 +2,7 @@
 
 February 2021
 
-In this repository there is the code I have developed with the goal of developing a model for the prediction of the hospitalizazation for patients with complicance due to diabetes.
+In this repository there is the code I have developed with the goal of developing a model for the prediction of the hospitalization for patients with complicance due to diabetes.
 
 The code is based on a modified version of the UCI diabetes dataset (https://archive.ics.uci.edu/ml/datasets/diabetes+130-us+hospitals+for+years+1999-2008).
 
